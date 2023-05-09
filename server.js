@@ -9,10 +9,10 @@ const bodyParser = require("body-parser");
 const app = express();
 
 const pool = mysql.createPool({
-  host: "eu-cdbr-west-03.cleardb.net",
-  user: "bd2738cfb4f2c3",
-  password: "bbfcf527",
-  database: "heroku_a0042f41c23b570",
+  host: "localhost",
+  user: "root",
+  password: "Mm123456",
+  database: "requests",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
