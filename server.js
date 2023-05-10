@@ -6,13 +6,11 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const app = express();
 
-const connection = mysql.createConnection(
-  'mysql://15k4p2thuvvz6vcigl14:pscale_pw_RwrajyWPj8mqI6KoBSgaHZUfpjb7RTA2TCjMh86maky@aws.connect.psdb.cloud/requests?ssl={"rejectUnauthorized":true}'
-);
-
+const connection = mysql.createConnection(process.env.DATABASE_URL);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(
