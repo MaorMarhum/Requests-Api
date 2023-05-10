@@ -9,18 +9,8 @@ const nodemailer = require("nodemailer");
 
 const app = express();
 
-const pool = mysql.createPool({
-  host: "aws.connect.psdb.cloud",
-  user: "tebai4awacgdm710lotd",
-  password: "pscale_pw_steRPr19t3mzNO5QWHedXwNDFMmiH3RCZnKIMYoMP3d",
-  database: "requests",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
-
 const connection = mysql.createConnection(
-  'mysql://tebai4awacgdm710lotd:pscale_pw_steRPr19t3mzNO5QWHedXwNDFMmiH3RCZnKIMYoMP3d@aws.connect.psdb.cloud/requests?ssl={"rejectUnauthorized":true}'
+  'mysql://15k4p2thuvvz6vcigl14:pscale_pw_RwrajyWPj8mqI6KoBSgaHZUfpjb7RTA2TCjMh86maky@aws.connect.psdb.cloud/requests?ssl={"rejectUnauthorized":true}'
 );
 
 app.use(cookieParser());
