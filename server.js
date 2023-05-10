@@ -68,12 +68,12 @@ app.post("/users/login", async (req, res) => {
         const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
 
         res.cookie("jwt", token, { httpOnly: true });
-        res.json({ name: user.name, jwt: token });
+        return res.json({ name: user.name, jwt: token });
       }
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
