@@ -59,7 +59,7 @@ app.post("/users/login", async (req, res) => {
         console.log(rows.values);
 
         if (rows.length === 0) {
-          return res.status(401).json({ message: "User not found!" });
+          return res.status(401).send({ message: "User not found!" });
         }
 
         const user = rows[0];
@@ -67,7 +67,7 @@ app.post("/users/login", async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-          return res.status(401).json({ message: "Incorrect password!" });
+          return res.status(401).send({ message: "Incorrect password!" });
         }
 
         const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
@@ -78,7 +78,7 @@ app.post("/users/login", async (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).send({ message: "Server error" });
   }
 });
 
