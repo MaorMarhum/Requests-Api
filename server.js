@@ -13,12 +13,7 @@ const app = express();
 const connection = mysql.createConnection(process.env.DATABASE_URL);
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
+app.use(cors({ origin: "*" }));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -330,4 +325,4 @@ app.post("/send-update", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("Example app is listening on port 3000."));
+app.listen(3001, () => console.log("Example app is listening on port 3000."));
