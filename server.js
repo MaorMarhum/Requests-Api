@@ -20,6 +20,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 // users
 app.get("/users", async (req, res) => {
   connection.query("SELECT * FROM users", function (err, rows, fields) {
