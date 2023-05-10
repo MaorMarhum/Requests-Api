@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -258,6 +259,90 @@ app.get('/requests/:id', async (req, res) => {
 
     res.status(200).json({ requests: results });
   } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  } finally {
+    connection.release();
+  }
+});
+
+// emails
+
+app.post('/send-email', (req, res) => {
+  const { recipientEmail, subject, message } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'maormarhum9400@gmail.com',
+      pass: 'dfisdhcokskdwdzr'
+    }
+  });
+
+  const mailOptions = {
+    from: 'maor.requests@gmail.com',
+    to: recipientEmail,
+    subject: subject,
+    text: message
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+      res.status(500).send('Error: Failed to send email');
+    } else {
+      res.send('Email sent successfully');
+    }
+  });
+});
+
+app.post('/send-update', async (req, res) => {
+  const { id } = req.body;
+
+  const connection = await pool.getConnection();
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'maormarhum9400@gmail.com',
+      pass: 'dfisdhcokskdwdzr'
+    }
+  });
+
+  try {
+    await connection.beginTransaction();
+
+    const [result_user_id] = await connection.execute('SELECT user_id FROM requests WHERE id = ?', [id]);
+    const user_id = result_user_id[0].user_id
+    const [result] = await connection.execute('SELECT email FROM users WHERE id = ?', [user_id]);
+    const recipientEmail = result[0].email
+    const [result_title] = await connection.execute('SELECT title FROM requests WHERE id = ?', [id]);
+    const title = result_title[0].title
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const mailOptions = {
+      from: 'maormarhum9400@gmail.com',
+      to: recipientEmail,
+      subject: 'עדכון סטטוס בקשה',
+      text: `יש לך עדכון לגבי הבקשה ששלחת למאור בנושא ${title}`
+    };
+  
+    transporter.sendMail(mailOptions, (error) => {
+      if (error) {
+        console.log(error);
+        res.status(500).send('Error: Failed to send email');
+      } else {
+        res.send('Email sent successfully');
+      }
+    });
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   } finally {
