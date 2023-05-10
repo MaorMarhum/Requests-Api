@@ -13,7 +13,7 @@ const app = express();
 const connection = mysql.createConnection(process.env.DATABASE_URL);
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(cors({ origin: "https://maor-requests.netlify.app" }));
+// app.use(cors({ origin: "https://maor-requests.netlify.app" }));
 app.use(function (req, res, next) {
   res.header(
     "Access-Control-Allow-Origin",
