@@ -13,17 +13,12 @@ const app = express();
 const connection = mysql.createConnection(process.env.DATABASE_URL);
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(cors());
-
-app.use((req, res, next) => {
-  // Replace * with the specific domain you want to allow
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -64,7 +59,7 @@ app.post("/users/login", async (req, res) => {
         console.log(rows.values);
 
         if (rows.length === 0) {
-          return res.status(401).send({ message: "User not found!" });
+          return res.status(401).json({ message: "User not found!" });
         }
 
         const user = rows[0];
@@ -72,18 +67,18 @@ app.post("/users/login", async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-          return res.status(401).send({ message: "Incorrect password!" });
+          return res.status(401).json({ message: "Incorrect password!" });
         }
 
         const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
 
         res.cookie("jwt", token, { httpOnly: true });
-        res.send({ name: user.name, jwt: token });
+        res.json({ name: user.name, jwt: token });
       }
     );
   } catch (err) {
     console.log(err);
-    res.status(500).send({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
