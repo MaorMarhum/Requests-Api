@@ -33,12 +33,6 @@ app.get("/", (req, res) => {
 });
 
 // users
-app.get("/users", async (req, res) => {
-  connection.query("SELECT * FROM users", function (err, rows, fields) {
-    if (err) throw err;
-    res.send(rows);
-  });
-});
 
 app.post("/users/register", async (req, res) => {
   const { name, email, password } = req.body;
@@ -56,44 +50,74 @@ app.post("/users/register", async (req, res) => {
   }
 });
 
-app.post("/users/login", async (req, res) => {
+// app.post("/users/login", async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     connection.query(
+//       "SELECT * FROM users WHERE email = ?",
+//       [email],
+//       async function (err, rows, fields) {
+//         console.log(rows.values);
+
+//         if (rows.length === 0) {
+//           return res.status(401).json({ message: "User not found!" });
+//         }
+
+//         const user = rows[0];
+
+//         const isPasswordValid = await bcrypt.compare(password, user.password);
+
+//         if (!isPasswordValid) {
+//           return res.status(401).json({ message: "Incorrect password!" });
+//         }
+
+//         const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
+
+//         res.cookie("jwt", token, { httpOnly: true });
+//         res.header(
+//           "Access-Control-Allow-Origin",
+//           "https://maor-requests.netlify.app"
+//         );
+//         res.header("Access-Control-Allow-Credentials", true);
+//         return res.status(200).send({ name: user.name, jwt: token });
+//       }
+//     );
+//   } catch (err) {
+//     console.log(err);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+app.post("users/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    connection.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email],
-      async function (err, rows, fields) {
-        console.log(rows.values);
+    // Check if user exists in database
+    const checkUser = await connection.promise().query(`SELECT * FROM users WHERE email = ?`, [email]);
+    if (checkUser[0].length === 0) {
+      return res.status(401).send("Invalid email or password");
+    }
 
-        if (rows.length === 0) {
-          return res.status(401).json({ message: "User not found!" });
-        }
+    // Compare password hashes
+    const isPasswordValid = await bcrypt.compare(password, checkUser[0][0].password);
+    if (!isPasswordValid) {
+      return res.status(401).send("Invalid email or password");
+    }
 
-        const user = rows[0];
+    // Generate JWT token
+    const token = jwt.sign({ email }, 'secret', { expiresIn: "1h" });
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Set token in cookie
+    res.cookie("token", token, { httpOnly: true, maxAge: 3600000 }); // maxAge is in milliseconds
 
-        if (!isPasswordValid) {
-          return res.status(401).json({ message: "Incorrect password!" });
-        }
-
-        const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
-
-        res.cookie("jwt", token, { httpOnly: true });
-        res.header(
-          "Access-Control-Allow-Origin",
-          "https://maor-requests.netlify.app"
-        );
-        res.header("Access-Control-Allow-Credentials", true);
-        return res.status(200).send({ name: user.name, jwt: token });
-      }
-    );
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: "Server error" });
+    res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal server error");
   }
 });
+
 
 app.get("/users/user", async (req, res) => {
   try {
