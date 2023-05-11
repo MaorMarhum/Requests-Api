@@ -84,6 +84,7 @@ app.post("/users/register", async (req, res) => {
 app.post("/users/login", cors(corsOptions), async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(req.body)
 
     // Check if user exists in database
     const checkUser = await connection
