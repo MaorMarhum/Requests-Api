@@ -120,34 +120,60 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
   }
 });
 
+// app.get("/users/user", cors(corsOptions), async (req, res) => {
+//   try {
+//     const token = req.cookies.token;
+
+//     if (!token) {
+//       throw new Error("Unauthenticated!");
+//     }
+
+//     const decodedToken = jwt.verify(token, "secret");
+
+//     connection.query(
+//       "SELECT * FROM users WHERE id = ?",
+//       [decodedToken.id],
+//       function (err, rows, fields) {
+//         if (rows.length === 0) {
+//           throw new Error("User not found");
+//         }
+
+//         const user = rows[0];
+
+//         res.status(200).json({ user });
+//       }
+//     );
+//   } catch (err) {
+//     console.error(err);
+//     res.status(401).json({ error: err.message });
+//   }
+// });
+
 app.get("/users/user", cors(corsOptions), async (req, res) => {
   try {
     const token = req.cookies.token;
-
     if (!token) {
-      throw new Error("Unauthenticated!");
+      return res.status(401).send("Access denied. No token provided.");
     }
 
-    const decodedToken = jwt.verify(token, "secret");
+    const decoded = jwt.verify(token, "secret");
+    const email = decoded.email;
 
-    connection.query(
-      "SELECT * FROM users WHERE id = ?",
-      [decodedToken.id],
-      function (err, rows, fields) {
-        if (rows.length === 0) {
-          throw new Error("User not found");
-        }
+    // Retrieve user from database using email
+    const user = await connection
+      .promise()
+      .query(`SELECT * FROM users WHERE email = ?`, [email]);
+    if (user[0].length === 0) {
+      return res.status(404).send("User not found.");
+    }
 
-        const user = rows[0];
-
-        res.status(200).json({ user });
-      }
-    );
-  } catch (err) {
-    console.error(err);
-    res.status(401).json({ error: err.message });
+    res.status(200).json(user[0][0]);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal server error");
   }
 });
+
 
 app.post("/users/logout", (req, res) => {
   res.clearCookie("jwt");
