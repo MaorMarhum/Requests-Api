@@ -111,7 +111,7 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
       maxAge: 3600000,
       sameSite: "none",
       secure: true,
-    }); // maxAge is in milliseconds
+    }); // maxAge is in millisecond
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
