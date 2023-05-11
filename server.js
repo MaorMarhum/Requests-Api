@@ -15,7 +15,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 const corsOptions = {
   origin: "https://maor-requests.netlify.app",
-  credentials: true
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -86,22 +86,32 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     const { email, password } = req.body;
 
     // Check if user exists in database
-    const checkUser = await connection.promise().query(`SELECT * FROM users WHERE email = ?`, [email]);
+    const checkUser = await connection
+      .promise()
+      .query(`SELECT * FROM users WHERE email = ?`, [email]);
     if (checkUser[0].length === 0) {
       return res.status(401).send("Invalid email or password");
     }
 
     // Compare password hashes
-    const isPasswordValid = await bcrypt.compare(password, checkUser[0][0].password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      checkUser[0][0].password
+    );
     if (!isPasswordValid) {
       return res.status(401).send("Invalid email or password");
     }
 
     // Generate JWT token
-    const token = jwt.sign({ email }, 'secret', { expiresIn: "1h" });
+    const token = jwt.sign({ email }, "secret", { expiresIn: "1h" });
 
     // Set token in cookie
-    res.cookie("token", token, { httpOnly: true, maxAge: 3600000 }); // maxAge is in milliseconds
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 3600000,
+      sameSite: "none",
+      secure: true,
+    }); // maxAge is in milliseconds
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
@@ -109,7 +119,6 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
-
 
 app.get("/users/user", cors(corsOptions), async (req, res) => {
   try {
