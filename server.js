@@ -111,9 +111,9 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
 });
 
 
-app.get("/users/user", async (req, res) => {
+app.get("/users/user", cors(corsOptions), async (req, res) => {
   try {
-    const token = req.cookies.jwt;
+    const token = req.cookies.token;
 
     if (!token) {
       throw new Error("Unauthenticated!");
