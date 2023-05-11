@@ -165,6 +165,8 @@ app.get("/users/user", cors(corsOptions), async (req, res) => {
       return res.status(404).send("User not found.");
     }
 
+    console.log(user)
+
     res.status(200).json(user[0][0]);
   } catch (error) {
     console.log(error);
