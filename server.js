@@ -14,7 +14,7 @@ const connection = mysql.createConnection(process.env.DATABASE_URL);
 app.use(cookieParser());
 app.use(bodyParser.json());
 const corsOptions = {
-  origin: "https://requests-frontend.vercel.app/",
+  origin: "https://requests-frontend.vercel.app",
   credentials: true,
 };
 
