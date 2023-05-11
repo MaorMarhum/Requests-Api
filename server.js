@@ -14,7 +14,7 @@ const connection = mysql.createConnection(process.env.DATABASE_URL);
 app.use(cookieParser());
 app.use(bodyParser.json());
 const corsOptions = {
-  origin: "https://maor-requests.netlify.app",
+  origin: "https://requests-frontend.vercel.app/",
   credentials: true,
 };
 
@@ -84,7 +84,6 @@ app.post("/users/register", async (req, res) => {
 app.post("/users/login", cors(corsOptions), async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body)
 
     // Check if user exists in database
     const checkUser = await connection
