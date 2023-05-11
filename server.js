@@ -15,6 +15,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 const corsOptions = {
   origin: "https://maor-requests.netlify.app",
+  credentials: true
 };
 
 app.use(cors(corsOptions));
