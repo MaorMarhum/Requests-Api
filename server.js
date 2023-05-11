@@ -100,7 +100,7 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     );
     if (!isPasswordValid) {
       return res.status(401).send("Invalid email or password");
-    };
+    }
 
     // Generate JWT token
     const token = jwt.sign({ email }, "secret", { expiresIn: "1h" });
