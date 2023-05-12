@@ -107,8 +107,9 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
 
     // Set token in cookie
     res.cookie("token", token, {
-      httpOnly: true,
       maxAge: 3600000,
+      httpOnly: true,
+      secure: true
     }); // maxAge is in millisecond
 
     res.status(200).json({ message: "Login successful", token });
@@ -176,7 +177,7 @@ app.get("/users/user", cors(corsOptions), async (req, res) => {
 
 
 app.post("/users/logout", (req, res) => {
-  res.clearCookie("jwt");
+  res.clearCookie("token");
   res.status(200).send("Logged out successfully!");
 });
 
