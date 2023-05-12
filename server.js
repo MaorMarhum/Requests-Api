@@ -153,7 +153,7 @@ app.post("/users/user", cors(corsOptions), async (req, res) => {
     const { token } = req.body;
     if (!token) {
       return res.status(401).send("Access denied. No token provided.");
-    }s
+    }
 
     const decoded = jwt.verify(token, "secret");
     const email = decoded.email;
