@@ -148,12 +148,12 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
 //   }
 // });
 
-app.get("/users/user", cors(corsOptions), async (req, res) => {
+app.post("/users/user", cors(corsOptions), async (req, res) => {
   try {
-    const token = req.cookies.token;
+    const { token } = req.body;
     if (!token) {
       return res.status(401).send("Access denied. No token provided.");
-    }
+    }s
 
     const decoded = jwt.verify(token, "secret");
     const email = decoded.email;
@@ -174,6 +174,34 @@ app.get("/users/user", cors(corsOptions), async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+
+// app.get("/users/user", cors(corsOptions), async (req, res) => {
+//   try {
+//     const token = req.cookies.token;
+//     if (!token) {
+//       return res.status(401).send("Access denied. No token provided.");
+//     }
+
+//     const decoded = jwt.verify(token, "secret");
+//     const email = decoded.email;
+
+//     // Retrieve user from database using email
+//     const user = await connection
+//       .promise()
+//       .query(`SELECT * FROM users WHERE email = ?`, [email]);
+//     if (user[0].length === 0) {
+//       return res.status(404).send("User not found.");
+//     }
+
+//     console.log(user[0])
+
+//     res.status(200).json(user[0]);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send("Internal server error");
+//   }
+// });
 
 
 app.post("/users/logout", (req, res) => {
