@@ -6,7 +6,6 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
-const cookieSession = require('cookie-session');
 require("dotenv").config();
 
 const app = express();
@@ -20,13 +19,6 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-
-app.use(cookieSession({
-  name: 'session',
-  secret: 'secret',
-  maxAge: 3600000, // cookie expiration time in milliseconds
-  httpOnly: true, // httpOnly
-}))
 
 // default
 
@@ -119,8 +111,6 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     //   maxAge: 3600000,
     //   httpOnly: true
     // });
-
-    req.session.token = token
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
