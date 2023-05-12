@@ -11,7 +11,7 @@ require("dotenv").config();
 const app = express();
 
 const connection = mysql.createConnection(process.env.DATABASE_URL);
-app.use(cookieParser());
+app.use(cookieParser('secret'));
 app.use(bodyParser.json());
 const corsOptions = {
   origin: "https://requests-frontend.vercel.app",
