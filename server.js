@@ -6,19 +6,29 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
+const cookieSession = require('cookie-session');
 require("dotenv").config();
 
 const app = express();
 
 const connection = mysql.createConnection(process.env.DATABASE_URL);
-app.use(cookieParser('secret'));
+
+app.use(cookieParser());
 app.use(bodyParser.json());
 const corsOptions = {
   origin: "https://requests-frontend.vercel.app",
   credentials: true,
 };
-
 app.use(cors(corsOptions));
+
+app.use(cookieSession({
+  name: 'session',
+  secret: 'secret',
+  maxAge: 3600000, // cookie expiration time in milliseconds
+  httpOnly: true, // httpOnly
+}))
+
+// default
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -105,12 +115,12 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ email }, "secret", { expiresIn: "1h" });
 
-    // Set token in cookie
-    res.cookie("token", token, {
-      maxAge: 3600000,
-      httpOnly: true,
-      signed: true
-    }); // maxAge is in millisecond
+    // res.cookie("token", token, {
+    //   maxAge: 3600000,
+    //   httpOnly: true
+    // });
+
+    req.session.token = token
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
