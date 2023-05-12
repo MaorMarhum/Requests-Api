@@ -44,50 +44,10 @@ app.post("/users/register", async (req, res) => {
   }
 });
 
-// app.post("/users/login", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     connection.query(
-//       "SELECT * FROM users WHERE email = ?",
-//       [email],
-//       async function (err, rows, fields) {
-//         console.log(rows.values);
-
-//         if (rows.length === 0) {
-//           return res.status(401).json({ message: "User not found!" });
-//         }
-
-//         const user = rows[0];
-
-//         const isPasswordValid = await bcrypt.compare(password, user.password);
-
-//         if (!isPasswordValid) {
-//           return res.status(401).json({ message: "Incorrect password!" });
-//         }
-
-//         const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
-
-//         res.cookie("jwt", token, { httpOnly: true });
-//         res.header(
-//           "Access-Control-Allow-Origin",
-//           "https://maor-requests.netlify.app"
-//         );
-//         res.header("Access-Control-Allow-Credentials", true);
-//         return res.status(200).send({ name: user.name, jwt: token });
-//       }
-//     );
-//   } catch (err) {
-//     console.log(err);
-//     return res.status(500).json({ message: "Server error" });
-//   }
-// });
-
 app.post("/users/login", cors(corsOptions), async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists in database
     const checkUser = await connection
       .promise()
       .query(`SELECT * FROM users WHERE email = ?`, [email]);
@@ -95,7 +55,6 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
       return res.status(401).send("Invalid email or password");
     }
 
-    // Compare password hashes
     const isPasswordValid = await bcrypt.compare(
       password,
       checkUser[0][0].password
@@ -104,13 +63,7 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
       return res.status(401).send("Invalid email or password");
     }
 
-    // Generate JWT token
     const token = jwt.sign({ email }, "secret", { expiresIn: "1h" });
-
-    // res.cookie("token", token, {
-    //   maxAge: 3600000,
-    //   httpOnly: true
-    // });
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
@@ -118,35 +71,6 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
-
-// app.get("/users/user", cors(corsOptions), async (req, res) => {
-//   try {
-//     const token = req.cookies.token;
-
-//     if (!token) {
-//       throw new Error("Unauthenticated!");
-//     }
-
-//     const decodedToken = jwt.verify(token, "secret");
-
-//     connection.query(
-//       "SELECT * FROM users WHERE id = ?",
-//       [decodedToken.id],
-//       function (err, rows, fields) {
-//         if (rows.length === 0) {
-//           throw new Error("User not found");
-//         }
-
-//         const user = rows[0];
-
-//         res.status(200).json({ user });
-//       }
-//     );
-//   } catch (err) {
-//     console.error(err);
-//     res.status(401).json({ error: err.message });
-//   }
-// });
 
 app.post("/users/user", cors(corsOptions), async (req, res) => {
   try {
@@ -158,7 +82,6 @@ app.post("/users/user", cors(corsOptions), async (req, res) => {
     const decoded = jwt.verify(token, "secret");
     const email = decoded.email;
 
-    // Retrieve user from database using email
     const user = await connection
       .promise()
       .query(`SELECT * FROM users WHERE email = ?`, [email]);
@@ -173,40 +96,6 @@ app.post("/users/user", cors(corsOptions), async (req, res) => {
     console.log(error);
     res.status(500).send("Internal server error");
   }
-});
-
-
-// app.get("/users/user", cors(corsOptions), async (req, res) => {
-//   try {
-//     const token = req.cookies.token;
-//     if (!token) {
-//       return res.status(401).send("Access denied. No token provided.");
-//     }
-
-//     const decoded = jwt.verify(token, "secret");
-//     const email = decoded.email;
-
-//     // Retrieve user from database using email
-//     const user = await connection
-//       .promise()
-//       .query(`SELECT * FROM users WHERE email = ?`, [email]);
-//     if (user[0].length === 0) {
-//       return res.status(404).send("User not found.");
-//     }
-
-//     console.log(user[0])
-
-//     res.status(200).json(user[0]);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("Internal server error");
-//   }
-// });
-
-
-app.post("/users/logout", (req, res) => {
-  res.clearCookie("token");
-  res.status(200).send("Logged out successfully!");
 });
 
 // requests
