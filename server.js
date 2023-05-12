@@ -109,7 +109,7 @@ app.post("/users/login", cors(corsOptions), async (req, res) => {
     res.cookie("token", token, {
       maxAge: 3600000,
       httpOnly: true,
-      secure: false
+      signed: true
     }); // maxAge is in millisecond
 
     res.status(200).json({ message: "Login successful", token });
